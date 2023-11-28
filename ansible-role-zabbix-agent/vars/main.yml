@@ -1,0 +1,8 @@
+---
+zabbix_agent_win_url: "https://cdn.zabbix.com/zabbix/binaries/stable/6.4/6.4.8/\
+  zabbix_agent-6.4.8-windows-amd64-openssl.msi"
+zabbix_agent_lnx_url: "https://cdn.zabbix.com/zabbix/binaries/stable/6.4/6.4.8/\
+  zabbix_agent-6.4.8-linux-3.0-amd64-static.tar.gz"
+zabbix_agent_win_packagefile: zabbix_agent-6.4.8-windows-amd64-openssl.msi
+zabbix_agent_lnx_packagefile: zabbix_agent-6.4.8-linux-3.0-amd64-static.tar.gz
+zabbix_product_id: "{FF9462D6-589B-4B73-9555-DD0A015528C9}"

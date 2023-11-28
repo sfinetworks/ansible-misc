@@ -1,0 +1,37 @@
+---
+- name: Create Vault tmpfiles config
+  template:
+    dest: /etc/tmpfiles.d/{{ vault_service }}.conf
+    group: root
+    mode: 0644
+    owner: root
+    src: tmpfiles.conf.j2
+  notify: recreate systemd-tmpfiles
+
+- name: Create Vault Systemd service file
+  template:
+    dest: /etc/systemd/system/{{ vault_service }}.service
+    group: root
+    mode: 0644
+    owner: root
+    src: vault-agent.service.j2
+  notify:
+    - reload systemd
+    - enable vault-agent.service
+
+- name: Create Vault configuration directory
+  file:
+    group: "{{ vault_group }}"
+    mode: 0750
+    owner: "{{ vault_user }}"
+    path: "{{ vault_config_dir }}"
+    state: directory
+
+- name: Create Vault Agent configuration
+  template:
+    dest: "{{ vault_config_dir }}/{{ vault_config_filename }}"
+    group: "{{ vault_group }}"
+    mode: 0640
+    owner: "{{ vault_user }}"
+    src: agent-config.hcl.j2
+  notify: start/restart Vault Agent service

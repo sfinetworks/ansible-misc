@@ -1,0 +1,28 @@
+---
+# handlers file for vault-agent
+- name: Apply changes to Vault tmpfiles config
+  when: not ansible_check_mode
+  command: systemd-tmpfiles --create
+  become: True
+  listen: recreate systemd-tmpfiles
+
+- name: Reload systemd to apply changes in vault-agent.service file
+  command: systemctl daemon-reload
+  become: True
+  listen: reload systemd
+
+- name: Enable Vault Agent service
+  when: not ansible_check_mode
+  service:
+    name: "{{ vault_service }}"
+    enabled: True
+  become: True
+  listen: enable vault-agent.service
+
+- name: Restart Vault Agent service
+  when: not ansible_check_mode
+  service:
+    name: "{{ vault_service }}"
+    state: restarted
+  become: True
+  listen: start/restart Vault Agent service

@@ -1,0 +1,15 @@
+# Vault Agent configuration for version {{ vault_version }}
+pid_file = "{{ vault_runtime_dir }}/vault-agent.pid"
+
+vault {
+  address = "{{ vault_server }}"
+
+  retry {
+    num_retries = 5
+  }
+}
+
+listener "tcp" {
+  address     = "127.0.0.1:8100"
+  tls_disable = true
+}

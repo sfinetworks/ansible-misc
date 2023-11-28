@@ -1,0 +1,31 @@
+---
+# tasks file for vault-agent
+- name: Preparation tasks
+  when: not uninstall
+  import_tasks: pre-tasks.yml
+
+- name: Create user for Vault Agent
+  when:
+    - not uninstall
+    - reinstall or vault_cur_version is not defined
+  import_tasks: create-user.yml
+  become: True
+
+- name: Install Vault
+  when:
+    - not uninstall
+    - reinstall or vault_cur_version is not defined
+  import_tasks: install-vault.yml
+  become: True
+
+- name: Create base configuration
+  when:
+    - not uninstall
+    - reinstall or vault_cur_version is not defined
+  import_tasks: create-config.yml
+  become: True
+
+- name: Uninstall Vault Agent
+  when: uninstall
+  import_tasks: uninstall.yml
+  become: True

@@ -1,0 +1,20 @@
+---
+- name: Linux - Descargar instalador
+  get_url:
+    url: "{{ zabbix_agent_lnx_url }}"
+    dest: /tmp/{{ zabbix_agent_lnx_packagefile }}
+
+- name: Linux - Instalar agente
+  win_package:
+    path: /tmp/{{ zabbix_agent_lnx_packagefile }}
+    arguments: /qr SERVER={{ zabbix_server }}
+    state: present
+  register: result_zabbix_win_install
+  failed_when:
+    - not ansible_check_mode
+    - result_zabbix_win_install.msg is defined
+
+- name: Linux - Eliminar instalador
+  file:
+    path: /tmp/{{ zabbix_agent_lnx_packagefile }}
+    state: absent

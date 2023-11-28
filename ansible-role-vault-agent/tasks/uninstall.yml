@@ -1,0 +1,42 @@
+---
+- name: Stop Vault Agent service
+  service:
+    enabled: False
+    name: "{{ vault_service }}"
+    state: stopped
+  register: vault_stop
+  failed_when:
+    - vault_stop.msg is defined
+    - '"Could not find the requested service" not in vault_stop.msg'
+
+- name: Remove Vault Agent configuration file
+  file:
+    path: "{{ vault_config_dir }}/{{ vault_config_filename }}"
+    state: absent
+
+- name: Remove Vault Agent SystemD service file
+  file:
+    path: /etc/systemd/system/{{ vault_service }}.service
+    state: absent
+
+- name: Reload systemd to apply changes in vault-agent.service file
+  command: systemctl daemon-reload
+  become: True
+
+- name: Remove Vault binary
+  when: delete_vault_binary_on_uninstall
+  file:
+    path: "{{ vault_bin_dir }}/vault"
+    state: absent
+
+- name: Remove Vault Agent user
+  when: delete_vault_user_and_group_on_uninstall
+  user:
+    name: "{{ vault_user }}"
+    state: absent
+
+- name: Remove Vault Agent group
+  when: delete_vault_user_and_group_on_uninstall
+  group:
+    name: "{{ vault_group }}"
+    state: absent

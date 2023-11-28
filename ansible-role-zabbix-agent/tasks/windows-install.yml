@@ -1,0 +1,20 @@
+---
+- name: Windows - Descargar instalador
+  win_get_url:
+    url: "{{ zabbix_agent_win_url }}"
+    dest: C:\\Windows\\Temp\\{{ zabbix_agent_win_packagefile }}
+
+- name: Windows - Instalar agente
+  win_package:
+    path: C:\\Windows\\Temp\\{{ zabbix_agent_win_packagefile }}
+    arguments: /qr SERVER={{ zabbix_server }}
+    state: present
+  register: result_zabbix_win_install
+  failed_when:
+    - not ansible_check_mode
+    - result_zabbix_win_install.msg is defined
+
+- name: Windows - Eliminar instalador
+  win_file:
+    path: C:\\Windows\\Temp\\{{ zabbix_agent_win_packagefile }}
+    state: absent

@@ -1,0 +1,5 @@
+---
+- name: Windows - Desinstalar agente
+  win_package:
+    product_id: "{{ zabbix_product_id }}"
+    state: absent

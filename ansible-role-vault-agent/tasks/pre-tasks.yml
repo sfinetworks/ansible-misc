@@ -1,0 +1,45 @@
+---
+- name: Gather minimum facts
+  when: ansible_service_mgr is not defined
+  setup:
+    gather_subset: min
+
+- name: Ensure we are running on Systemd
+  assert:
+    that: ansible_service_mgr == "systemd"
+    fail_msg: This is not a SystemD environment. Cannot continue.
+    quiet: true
+
+- name: Look for unzip
+  command: which unzip
+  register: unzip_command
+  changed_when: False
+  check_mode: False
+  failed_when: unzip_command.rc not in [0,1]
+
+- name: Check for dependencies
+  assert:
+    that: unzip_command.rc == 0
+    fail_msg: unzip command is not found. Cannot continue.
+    quiet: True
+
+- name: Check for existing Vault binary
+  command: vault -version
+  register: vault_command
+  failed_when: vault_command.rc not in [0,2,127]
+  check_mode: false
+  changed_when: false
+  environment:
+    PATH: "{{ vault_bin_dir }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+
+- name: Obtain vault version if already present
+  when: vault_command.rc == 0
+  set_fact:
+    vault_cur_version: "{{ vault_command.stdout.split(' ')[1] }}"
+
+- name: Warning
+  when:
+    - not reinstall
+    - vault_cur_version is defined
+  debug:
+    msg: Vault {{ vault_cur_version }} is already present on this system. Skipping installation.

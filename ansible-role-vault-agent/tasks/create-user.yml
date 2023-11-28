@@ -1,0 +1,22 @@
+---
+- name: Create Vault group
+  group:
+    name: "{{ vault_group }}"
+    system: True
+
+- name: Create Vault user
+  user:
+    name: "{{ vault_user }}"
+    system: True
+    group: "{{ vault_group }}"
+    create_home: False
+    home: "{{ vault_home_dir }}"
+    shell: "{{ vault_shell }}"
+
+- name: Create Vault $HOME directory
+  file:
+    state: directory
+    path: "{{ vault_home_dir }}"
+    mode: 0750
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"

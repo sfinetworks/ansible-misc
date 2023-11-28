@@ -1,0 +1,22 @@
+---
+- name: Download Vault {{ vault_version }}
+  get_url:
+    dest: /tmp/{{ vault_url | basename }}
+    mode: 0640
+    url: "{{ vault_url }}"
+  register: vault_download
+
+- name: Extract Vault zip file
+  when: not ansible_check_mode
+  unarchive:
+    dest: "{{ vault_bin_dir }}"
+    group: root
+    mode: 0755
+    owner: root
+    remote_src: True
+    src: /tmp/{{ vault_url | basename }}
+
+- name: Remove Vault zip file
+  file:
+    path: /tmp/{{ vault_url | basename }}
+    state: absent

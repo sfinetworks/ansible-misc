@@ -1,0 +1,18 @@
+---
+# defaults file for vault-agent
+reinstall: False
+uninstall: False
+delete_vault_user_and_group_on_uninstall: False
+delete_vault_binary_on_uninstall: False
+vault_bin_dir: /usr/bin
+vault_config_dir: /etc/vault
+vault_config_filename: agent-config.hcl
+vault_group: vault-agent
+vault_home_dir: /var/vault-agent
+vault_runtime_dir: /run/vault-agent
+vault_server: https://localhost:8200
+vault_service: vault-agent
+vault_shell: /usr/bin/false
+vault_url: https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_amd64.zip
+vault_user: vault-agent
+vault_version: 1.14.1
