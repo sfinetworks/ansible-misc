@@ -1,0 +1,6 @@
+---
+# defaults file for ansible-role-amazon-ssm-agent
+lnx_deb_ssm_agent_url: https://s3.us-east-1.amazonaws.com/amazon-ssm-us-east-1/latest/debian_amd64/amazon-ssm-agent.deb
+lnx_deb_ssm_agent_file: amazon-ssm-agent.deb
+package_name: amazon-ssm-agent
+service_name: amazon-ssm-agent

@@ -1,0 +1,7 @@
+---
+# vars file for ansible-role-amazon-ssm-agent
+role_action: install
+proxy_address: ""
+ssm_code: ""
+ssm_id: ""
+ssm_region: ""

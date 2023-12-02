@@ -1,0 +1,4 @@
+---
+- name: Invocar instalador para Ubuntu
+  include_tasks: linux-ubuntu-install.yml
+  when: ansible_distribution == 'Ubuntu'
