@@ -1,0 +1,5 @@
+---
+- name: Test role
+  hosts: all
+  roles:
+    - ansible-role-amazon-ssm-agent

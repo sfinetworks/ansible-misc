@@ -1,0 +1,14 @@
+---
+- name: Invocar desinstalador para Ubuntu
+  include_tasks: linux-ubuntu-uninstall.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Eliminar directorios usados por el agente
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/systemd/system/amazon-ssm-agent.service.d/
+    - /var/lib/amazon/ssm
+    - /etc/amazon/ssm
+  become: true

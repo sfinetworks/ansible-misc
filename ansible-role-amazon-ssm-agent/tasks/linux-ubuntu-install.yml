@@ -1,0 +1,11 @@
+---
+- name: Linux Ubuntu - Instalar agente
+  apt:
+    deb: "{{ lnx_deb_ssm_agent_url }}"
+  become: true
+  register: result_ubuntu_install
+
+- name: Mostrar resultado de instalacion
+  debug:
+    var: result_ubuntu_install
+  when: result_ubuntu_install.failed | default(false)
