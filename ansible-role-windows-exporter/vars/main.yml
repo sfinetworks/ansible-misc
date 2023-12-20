@@ -1,0 +1,8 @@
+---
+# vars file for ansible-role-windows-exporter
+windows_exporter_version: 0.24.0
+windows_exporter_url: https://github.com/prometheus-community/windows_exporter/releases/download/v{{ windows_exporter_version }}/windows_exporter-{{ windows_exporter_version }}-amd64.msi
+windows_exporter_file: "{{ (windows_exporter_url | split('/'))[-1] }}"
+role_action: install
+windows_exporter_service: windows_exporter
+windows_exporter_product_id: "{FAF8BA71-6B12-4EC1-A5DF-A5C33008D7FE}"

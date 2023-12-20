@@ -1,0 +1,12 @@
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User={{ node_exporter_lnx_user }}
+Group={{ node_exporter_lnx_group }}
+Type=simple
+ExecStart={{ node_exporter_lnx_install_path }}/node_exporter/node_exporter --web.config.file={{ node_exporter_lnx_install_path }}/node_exporter/configuration.yml
+
+[Install]
+WantedBy=multi-user.target

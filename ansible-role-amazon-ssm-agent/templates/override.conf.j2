@@ -1,3 +1,7 @@
 [Service]
-Environment="http_proxy={{ proxy_address }}"
-Environment="https_proxy={{ proxy_address }}"
+{% if http_proxy != "" %}
+Environment="http_proxy={{ http_proxy }}"
+{% endif %}
+{% if https_proxy != "" %}
+Environment="https_proxy={{ https_proxy }}"
+{% endif %}

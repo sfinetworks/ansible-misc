@@ -1,0 +1,13 @@
+---
+- name: Linux APT - Desinstalar agente
+  apt:
+    name: "{{ package_name }}"
+    state: absent
+  become: true
+  register: result_apt_uninstall
+  when: ssm_pkg_type == "apt"
+
+- name: Linux APT - Mostrar resultado de desinstalacion
+  debug:
+    var: result_apt_uninstall
+  when: result_apt_uninstall.failed | default(false)

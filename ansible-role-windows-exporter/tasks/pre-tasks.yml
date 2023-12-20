@@ -1,0 +1,23 @@
+---
+- name: Verificar si windows_exporter esta corriendo
+  ansible.windows.win_command: tasklist /NH /FI "IMAGENAME eq windows_exporter.exe"
+  register: check_pids
+  changed_when: false
+
+- name: Verifcar si windows_exporter esta instalado
+  ansible.windows.win_package:
+    product_id: "{{ windows_exporter_product_id }}"
+    state: absent
+  check_mode: true
+  register: check_installation
+
+- name: Definir variable de deteccion de instalacion existente
+  ansible.builtin.set_fact:
+    windows_exporter_installed: >
+      {{ check_pids.stdout | regex_search('windows_exporter.exe') != '' or
+      check_installation.changed }}
+
+- name: Informar de la verificacion realizada
+  ansible.builtin.debug:
+    msg: windows_exporter ya se encuentra instalado
+  when: windows_exporter_installed

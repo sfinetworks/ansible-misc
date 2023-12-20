@@ -1,0 +1,38 @@
+---
+- name: Windows - Configuracion de proxy para el agente
+  ansible.windows.win_powershell:
+    script: |
+      $serviceKey = "HKLM:\SYSTEM\CurrentControlSet\Services\AmazonSSMAgent"
+      $keyInfo = (Get-Item -Path $serviceKey).GetValue("Environment")
+      $proxyVariables = @("http_proxy={{ http_proxy }}", "https_proxy={{ https_proxy }}")
+
+      if ($keyInfo -eq $null) {
+          New-ItemProperty -Path $serviceKey -Name Environment -Value $proxyVariables -PropertyType MultiString -Force
+      } 
+      else {
+          Set-ItemProperty -Path $serviceKey -Name Environment -Value $proxyVariables
+      }
+      Restart-Service AmazonSSMAgent
+  when:
+    - http_proxy != ""
+    - https_proxy != ""
+
+- name: Windows - Registrar el agente SSM con codigo e ID
+  win_command: amazon-ssm-agent -register -code {{ ssm_code }} -id {{ ssm_id }} -region {{ ssm_region }}
+  args:
+    chdir: C:\\Program Files\\Amazon\\SSM
+    # creates: /var/lib/amazon/ssm
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+  when: ssm_register
+  failed_when:
+    - not ansible_check_mode
+    - ssm_register.stdout is defined
+    - ssm_register.stdout | regex_search("Instance already registered") != ''
+
+- name: Windows - Eliminar instalador descargado
+  win_file:
+    path: "C:\\Windows\\Temp\\{{ ssm_agent_file }}"
+    state: absent
+  

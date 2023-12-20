@@ -1,0 +1,14 @@
+---
+# handlers file for ansible-role-node-exporter
+- name: Linux - Recargar systemd
+  ansible.builtin.command: systemctl daemon-reload
+  become: true
+  listen: systemd-reload
+
+- name: Linux - Iniciar el servicio node_exporter
+  ansible.builtin.service:
+    name: "{{ node_exporter_lnx_service }}"
+    state: restarted
+    enabled: true
+  become: true
+  listen: lnx-restart-node_exporter

@@ -1,0 +1,39 @@
+---
+- name: Descargar instalador
+  ansible.builtin.get_url:
+    url: "{{ windows_exporter_url }}"
+    dest: /tmp/{{ windows_exporter_file }}
+  delegate_to: localhost
+  run_once: true
+
+- name: Copiar instalador
+  ansible.windows.win_copy:
+    src: "/tmp/{{ windows_exporter_file }}"
+    dest: C:\\Windows\\Temp\\
+
+- name: Instalar windows_exporter
+  ansible.windows.win_package:
+    path: C:\\Windows\\Temp\\{{ windows_exporter_file }}
+    arguments: /qr
+    state: present
+  register: result_install
+  failed_when:
+    - not ansible_check_mode
+    - result_install.msg is defined
+
+- name: Abrir puerto de windows_exporter
+  community.windows.win_firewall_rule:
+    name: Allow_TCP_9182
+    localport: 9182
+    protocol: tcp
+    direction: in
+    action: allow
+    profiles:
+      - domain
+      - private
+      - public
+
+- name: Eliminar instalador
+  ansible.windows.win_file:
+    path: C:\\Windows\\Temp\\{{ windows_exporter_file }}
+    state: absent

@@ -1,0 +1,83 @@
+---
+- name: Descargar instalador
+  ansible.builtin.get_url:
+    dest: /tmp/{{ node_exporter_lnx_file }}
+    url: "{{ node_exporter_lnx_url }}"
+  delegate_to: localhost
+
+- name: Copiar instalador
+  ansible.builtin.copy:
+    src: /tmp/{{ node_exporter_lnx_file }}
+    dest: /tmp
+    mode: 0644
+
+- name: Extraer contenido de tarball de node_exporter en {{ node_exporter_lnx_install_path }}
+  ansible.builtin.unarchive:
+    creates: "{{ node_exporter_lnx_install_dir }}"
+    dest: "{{ node_exporter_lnx_install_path }}"
+    remote_src: true
+    src: /tmp/{{ node_exporter_lnx_file }}
+  become: true
+  when: not ansible_check_mode
+
+- name: Ajustar propietario y grupo de directorio de instalacion de {{ node_exporter_lnx_install_dir }}
+  ansible.builtin.file:
+    group: "{{ node_exporter_lnx_group }}"
+    owner: "{{ node_exporter_lnx_user }}"
+    path: "{{ node_exporter_lnx_install_dir }}"
+    recurse: true
+  become: true
+
+- name: Crear enlace simbolico a version actual de node_exporter
+  ansible.builtin.file:
+    dest: "{{ node_exporter_lnx_install_path }}/node_exporter"
+    force: true
+    src: "{{ node_exporter_lnx_install_dir }}"
+    state: link
+  become: true
+
+- name: Crear configuracion de node_exporter
+  ansible.builtin.template:
+    dest: "{{ node_exporter_lnx_install_path }}/node_exporter/configuration.yml"
+    group: "{{ node_exporter_lnx_group }}"
+    owner: "{{ node_exporter_lnx_user }}"
+    src: configuration.yml.j2
+  become: true
+  notify:
+  - systemd-reload
+  - lnx-restart-node_exporter
+
+- name: Crear archivos TLS
+  ansible.builtin.copy:
+    content: "{{ item.content | b64decode }}"
+    dest: "{{ node_exporter_lnx_install_dir }}/{{ item.file }}"
+    owner: "{{ node_exporter_lnx_user }}"
+    group: "{{ node_exporter_lnx_group }}"
+    mode: "{{ item.mode }}"
+  become: true
+  when:
+    - node_exporter_cert_file is defined
+    - node_exporter_key_file is defined
+  loop:
+    - { file: tls.crt, content: "{{ node_exporter_cert_file }}", mode: u=rw,g=rw,o=r }
+    - { file: tls.key, content: "{{ node_exporter_key_file }}", mode: u=rw,g=rw,o= }
+  loop_control:
+    label: "{{ item.file }}"
+
+- name: Crear servicio Systemd para node_exporter
+  ansible.builtin.template:
+    dest: /etc/systemd/system/{{ node_exporter_lnx_service }}.service
+    group: root
+    mode: 0644
+    owner: root
+    src: node_exporter.service.j2
+  become: true
+  notify:
+    - systemd-reload
+    - lnx-restart-node_exporter
+
+- name: Eliminar instalador de node_exporter
+  ansible.builtin.file:
+    path: /tmp/{{ node_exporter_lnx_file }}
+    state: absent
+  become: true

@@ -12,3 +12,4 @@
     enabled: true
   become: true
   listen: amazon-ssm-agent-reload
+  when: not ansible_check_mode
