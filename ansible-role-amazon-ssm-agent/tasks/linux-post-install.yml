@@ -1,0 +1,39 @@
+---
+- name: Linux - Configurar proxy para el agente
+  when: http_proxy != "" or https_proxy != ""
+  block:
+    - name: Linux - Crear directorio de personalizacion Systemd para el agente
+      file:
+        path: /etc/systemd/system/amazon-ssm-agent.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+      become: true
+
+    - name: Linux - Crear configuracion personalizada Systemd para el agente
+      template:
+        src: override.conf.j2
+        dest: /etc/systemd/system/amazon-ssm-agent.service.d/override.conf
+        owner: root
+        group: root
+        mode: 0644
+      become: true
+      notify:
+        - systemd-reload
+        - amazon-ssm-agent-reload
+
+- name: Linux - Registrar el agente SSM con codigo e ID
+  command: amazon-ssm-agent -register -code {{ ssm_code }} -id {{ ssm_id }} -region {{ ssm_region }}
+  args:
+    creates: /var/lib/amazon/ssm
+  become: true
+  notify: amazon-ssm-agent-reload
+  when: ssm_register
+
+- name: Linux - Eliminar instalador descargado
+  file:
+    path: "/tmp/{{ ssm_agent_file }}"
+    state: absent
+  become: true
+  

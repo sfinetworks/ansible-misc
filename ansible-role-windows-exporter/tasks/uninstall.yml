@@ -1,0 +1,9 @@
+---
+- name: Desinstalar windows_exporter
+  ansible.windows.win_package:
+    product_id: "{{ windows_exporter_product_id }}"
+    state: absent
+  register: result_install
+  failed_when:
+    - not ansible_check_mode
+    - result_install.msg is defined

@@ -1,0 +1,13 @@
+---
+- name: Linux YUM - Desinstalar agente
+  yum:
+    name: "{{ package_name }}"
+    state: absent
+  become: true
+  register: result_yum_uninstall
+  when: ssm_pkg_type == "yum"
+
+- name: Linux YUM - Mostrar resultado de desinstalacion
+  debug:
+    var: result_yum_uninstall
+  when: result_yum_uninstall.failed | default(false)

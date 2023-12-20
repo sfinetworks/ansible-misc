@@ -1,0 +1,21 @@
+---
+- name: Detener servicio node_exporter
+  ansible.builtin.service:
+    name: "{{ node_exporter_lnx_service }}"
+    state: stopped
+    enabled: false
+  become: true
+  failed_when:
+    - result.msg is defined
+    - not result.msg | regex_search('Could not find the requested service')
+
+- name: Eliminar archivos directorios usados por node_exporter
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/systemd/system/{{ node_exporter_lnx_service }}.service
+    - "{{ node_exporter_lnx_install_dir }}"
+    - "{{ node_exporter_lnx_install_path }}/node_exporter"
+  become: true
+  notify: systemd-reload

@@ -1,0 +1,8 @@
+---
+- name: Invocar tareas post-instalacion en Linux
+  include_tasks: linux-post-install.yml
+  when: ansible_system == "Linux"
+
+- name: Invocar tareas post-instalacion en Windows
+  include_tasks: windows-post-install.yml
+  when: ansible_system == "Win32NT"

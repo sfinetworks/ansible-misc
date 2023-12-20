@@ -1,0 +1,14 @@
+---
+- name: Verificar instalacion existente
+  ansible.builtin.include_tasks: pre-tasks.yml
+  when: role_action == 'install'
+
+- name: Instalar windows_exporter
+  include_tasks: install.yml
+  when:
+    - role_action == 'install'
+    - not windows_exporter_installed
+
+- name: Desinstalar windows_exporter
+  include_tasks: uninstall.yml
+  when: role_action == 'uninstall'

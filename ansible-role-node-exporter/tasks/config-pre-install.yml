@@ -1,0 +1,13 @@
+---
+- name: Crear grupo para node_exporter
+  ansible.builtin.group:
+    name: "{{ node_exporter_lnx_group }}"
+    system: true
+  become: true
+
+- name: Crear usuario para node_exporter
+  ansible.builtin.user:
+    name: "{{ node_exporter_lnx_user }}"
+    group: "{{ node_exporter_lnx_group }}"
+    system: true
+  become: true

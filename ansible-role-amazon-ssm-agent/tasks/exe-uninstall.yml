@@ -1,0 +1,23 @@
+---
+- name: Windows - Descarga de instalador
+  win_get_url:
+    url: "{{ ssm_agent_url }}"
+    dest: "C:\\Windows\\Temp\\{{ ssm_agent_file }}"
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+
+- name: Windows - Desinstalar agente
+  win_package:
+    path: "C:\\Windows\\Temp\\{{ ssm_agent_file }}"
+    arguments:
+      - /uninstall
+      - /quiet
+      - /norestart
+  register: result_exe_uninstall
+  when: not ansible_check_mode
+
+- name: Windows - Mostrar resultado de instalacion
+  debug:
+    var: result_exe_uninstall
+  when: result_exe_uninstall.failed | default(false)

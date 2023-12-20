@@ -1,0 +1,8 @@
+---
+- name: Invocar desinstalador para Linux
+  include_tasks: linux-uninstall.yml
+  when: ansible_system == "Linux"
+
+- name: Invocar desinstalador para Windows
+  include_tasks: exe-uninstall.yml
+  when: ansible_system == "Win32NT"

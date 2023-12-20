@@ -1,0 +1,20 @@
+---
+- name: Verificar si node_exporter esta corriendo
+  ansible.builtin.command: ps -eo comm
+  register: check_pids
+  changed_when: false
+
+- debug: var=check_pids
+- fail:
+# - name: Verificar si existe directorio de instalacion
+#   ansible.builtin.stat:
+#     path: /opt/node_exporter
+#   register: check_inst_dir
+#   failed_when: false
+
+# - name: Definir variable de deteccion de instalacion existente
+#   ansible.builtin.set_fact:
+#     node_exporter_installed: >
+#       {{ 'node_exporter' in check_pids.stdout_lines or 
+#       (check_inst_dir.stat.exists | default(false) and
+#       (check_inst_dir.stat.islnk or check_inst_dir.stat.isdir)) }}

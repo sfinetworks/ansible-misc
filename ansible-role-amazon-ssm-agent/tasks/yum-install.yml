@@ -1,0 +1,15 @@
+---
+- name: Linux YUM - Instalar agente
+  yum:
+    name: "{{ ssm_agent_url }}"
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+  become: true
+  register: result_yum_install
+  when: not ansible_check_mode
+
+- name: Linux YUM - Mostrar resultado de instalacion
+  debug:
+    var: result_yum_install
+  when: result_yum_install.failed | default(false)

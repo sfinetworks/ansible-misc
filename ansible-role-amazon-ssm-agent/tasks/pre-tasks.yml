@@ -1,0 +1,43 @@
+---
+- name: Recopilar facts minimos
+  setup:
+    gather_subset: min
+  when: ansible_system is not defined
+
+- name: Verificar distribuciones soportadas
+  assert:
+    that:
+      - ansible_distribution in ["CentOS", "Amazon", "RedHat", "Debian", "Ubuntu"]
+    fail_msg: "{{ ansible_distribution }} no es una distribucion Linux soportada. Abortando."
+    success_msg: "{{ ansible_distribution }} si es una distribucion Linux soportada. Continuando."
+  when: ansible_system == "Linux"
+
+- name: Definir tipo de instalador a usar
+  set_fact:
+    ssm_pkg_type: >-
+      {%- if ansible_distribution in ["Debian", "Ubuntu"] -%}
+        apt
+      {%- endif -%}
+      {%- if ansible_distribution in ["CentOS", "RedHat", "Amazon"] -%}
+        yum
+      {%- endif -%}
+      {%- if ansible_system == "Win32NT" -%}
+        exe
+      {%- endif -%}
+
+- name: Definir URL del instalador
+  set_fact:
+    ssm_agent_url: >-
+      {%- if ssm_pkg_type == "apt" -%}
+        {{ lnx_apt_ssm_agent_url }}
+      {%- endif -%}
+      {%- if ssm_pkg_type == "yum" -%}
+        {{ lnx_yum_ssm_agent_url }}
+      {%- endif -%}
+      {%- if ssm_pkg_type == "exe" -%}
+        {{ win_exe_ssm_agent_url }}
+      {%- endif -%}
+
+- name: Definir nombre de archivo del instalador
+  set_fact:
+    ssm_agent_file: "{{ (ssm_agent_url | split('/'))[-1] }}"

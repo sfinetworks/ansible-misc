@@ -1,42 +1,15 @@
 ---
-# tasks file for ansible-role-amazon-ssm-agent
-# - name: Invocar instalador para Windows
-#   include_tasks: windows-install.yml
-#   when:
-#     - ansible_system == 'Win32NT'
-#     - role_action == 'install'
+- name: Ejecutar tareas previas
+  include_tasks: pre-tasks.yml
 
-# - name: Invocar desinstalador para Windows
-#   include_tasks: windows-uninstall.yml
-#   when:
-#     - ansible_system == 'Win32NT'
-#     - role_action == 'uninstall'
+- name: Invocar instalador en {{ ansible_system }} para gestor de paquetes {{ ssm_pkg_type }}
+  include_tasks: "{{ ssm_pkg_type }}-install.yml"
+  when: role_action == 'install'
 
-- name: Invocar instalador para Linux
-  include_tasks: linux-install.yml
-  when:
-    - ansible_system == 'Linux'
-    - role_action == 'install'
+- name: Invocar tareas post-instalacion
+  include_tasks: post-install.yml
+  when: role_action == 'install'
 
-- name: Invocar desinstalador para Linux
-  include_tasks: linux-uninstall.yml
-  when:
-    - ansible_system == 'Linux'
-    - role_action == 'uninstall'
-
-- name: Configurar proxy para el agente
-  include_tasks: linux-config-proxy.yml
-  when:
-    - proxy_address is defined
-    - proxy_address != ""
-
-- name: Registrar el agente SSM con codigo e ID
-  command: amazon-ssm-agent -register -code {{ ssm_code }} -id {{ ssm_id }} -region {{ ssm_region }}
-  args:
-    creates: /var/lib/amazon/ssm
-  become: true
-  notify: amazon-ssm-agent-reload
-  when:
-    - ssm_code | default("") != ""
-    - ssm_id | default("") != ""
-    - ssm_region | default("") != ""
+- name: Invocar desinstalador
+  include_tasks: uninstall.yml
+  when: role_action == 'uninstall'

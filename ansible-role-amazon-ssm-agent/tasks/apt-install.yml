@@ -1,0 +1,15 @@
+---
+- name: Linux APT - Instalar agente
+  apt:
+    deb: "{{ ssm_agent_url }}"
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+  become: true
+  register: result_apt_install
+  when: not ansible_check_mode
+
+- name: Linux APT - Mostrar resultado de instalacion
+  debug:
+    var: result_apt_install
+  when: result_apt_install.failed | default(false)

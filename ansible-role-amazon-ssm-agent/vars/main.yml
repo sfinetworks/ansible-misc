@@ -1,7 +1,13 @@
 ---
 # vars file for ansible-role-amazon-ssm-agent
 role_action: install
-proxy_address: ""
+
+# Si ssm_register=true, se debe definir un valor para ssm_id, ssm_code y ssm_region
+ssm_register: false
 ssm_code: ""
 ssm_id: ""
 ssm_region: ""
+
+# Debe definir un valor para http_proxy y/o https_proxy si se necesita usar proxy
+http_proxy: ""
+https_proxy: ""

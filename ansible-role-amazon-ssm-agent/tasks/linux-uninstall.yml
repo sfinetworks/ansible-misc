@@ -1,9 +1,14 @@
 ---
-- name: Invocar desinstalador para Ubuntu
-  include_tasks: linux-ubuntu-uninstall.yml
-  when: ansible_distribution == 'Ubuntu'
+- name: Linux - Detener agente
+  service:
+    name: "{{ service_name }}"
+    state: stopped
+  become: true
 
-- name: Eliminar directorios usados por el agente
+- name: Linux - Invocar desinstalador para gestor de paquetes {{ ssm_pkg_type }}
+  include_tasks: "{{ ssm_pkg_type }}-uninstall.yml"
+
+- name: Linux - Eliminar directorios usados por el agente
   file:
     path: "{{ item }}"
     state: absent

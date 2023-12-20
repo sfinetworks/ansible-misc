@@ -1,0 +1,20 @@
+---
+- name: Verificar instalacion existente
+  ansible.builtin.include_tasks: pre-tasks.yml
+  when: role_action == 'install'
+
+- name: Invocar tareas pre-instalacion para Linux
+  ansible.builtin.include_tasks: config-pre-install.yml
+  when:
+    - role_action == 'install'
+    - not node_exporter_installed
+
+- name: Invocar tareas de instalacion para Linux
+  ansible.builtin.include_tasks: install.yml
+  when:
+    - role_action == 'install'
+    - not node_exporter_installed
+
+- name: Invocar tareas de desinstalacion para Linux
+  ansible.builtin.include_tasks: uninstall.yml
+  when: role_action == 'uninstall'
