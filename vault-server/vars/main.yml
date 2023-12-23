@@ -1,0 +1,6 @@
+---
+# vars file for ansible-role-vault-raft
+vault_version: "latest"
+vault_nodes:
+  - hostname: vault.sfi.pe
+    ip: 192.168.3.42

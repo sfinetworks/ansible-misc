@@ -1,0 +1,27 @@
+---
+- name: Recopilar facts minimos
+  setup:
+    gather_subset: min
+  when: ansible_distribution_release is not defined
+
+- name: Borrar keyring de paquetes de Hashicorp
+  ansible.builtin.file:
+    path: "{{ hashi_keyring }}"
+    state: absent
+  become: true
+
+- name: Obtener llave de firma de paquetes
+  ansible.builtin.get_url:
+    url: "{{ hashi_key }}"
+    dest: /tmp/{{ hashi_key_file }}
+
+- name: Importar llave de firma de paquetes
+  ansible.builtin.command: gpg --dearmor -o {{ hashi_keyring }} /tmp/{{ hashi_key_file }}
+  become: true
+
+- name: Configurar repositorio APT para Hashicorp
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ hashi_keyring }}] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    filename: hashicorp
+    state: present
+  become: true

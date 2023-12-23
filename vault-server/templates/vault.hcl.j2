@@ -1,0 +1,36 @@
+ui = true
+
+api_addr     = "https://vault1.empresa.com:8200"
+cluster_addr = "https://vault1.empresa.com:8201"
+
+listener "tcp" {
+  address         = "0.0.0.0:8200"
+
+  # Agregar la siguiente linea
+  cluster_address = "0.0.0.0:8201"
+
+  # Agregar estas 3 lineas
+  tls_disable_client_certs = true
+  tls_max_version          = "tls13"
+  tls_min_version          = "tls12"
+
+  tls_cert_file = "/opt/vault/tls/vault.empresa.com.crt"
+  tls_key_file  = "/opt/vault/tls/vault.empresa.com.key"
+}
+
+# Agregar este bloque de storage "raft"
+storage "raft" {
+  path = "/opt/vault/data"
+
+  retry_join {
+    leader_api_addr = "https://vault1.empresa.com:8200"
+  }
+
+  retry_join {
+    leader_api_addr = "https://vault2.empresa.com:8200"
+  }
+
+  retry_join {
+    leader_api_addr = "https://vault3.empresa.com:8200"
+  }
+}

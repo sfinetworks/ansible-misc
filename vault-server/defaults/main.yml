@@ -1,0 +1,6 @@
+---
+# defaults file for ansible-role-vault-raft
+hashi_key: https://apt.releases.hashicorp.com/gpg
+hashi_keyring: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+hashi_key_file: "{{ hashi_keyring | basename }}"
+vault_package: "{{ 'vault' if vault_version == 'latest' else 'vault=' + vault_version }}"
