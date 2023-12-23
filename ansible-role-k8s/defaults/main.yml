@@ -1,0 +1,31 @@
+---
+# defaults file for ansible-role-k8s
+base_dependencies:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gpg
+
+kube_packages:
+  - kubeadm
+  - kubectl
+  - kubelet
+
+containerd_url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-amd64.tar.gz
+containerd_tarball: "{{ (containerd_url | split('/'))[-1] }}"
+containerd_systemd_file_url: https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
+containerd_systemd_file: /usr/local/lib/systemd/system/containerd.service
+containerd_config: /etc/containerd/config.toml
+runc_url: https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.amd64
+runc_file: /usr/local/sbin/runc
+cni_plugins_url: https://github.com/containernetworking/plugins/releases/download/v{{ cni_plugins_version }}/cni-plugins-linux-amd64-v{{ cni_plugins_version }}.tgz
+cni_plugins_file: "{{ (cni_plugins_url | split('/'))[-1] }}"
+cni_plugins_dir: /opt/cni/bin
+
+sysctl_settings:
+  - name: net.bridge.bridge-nf-call-ip6tables
+    value: 1
+  - name: net.bridge.bridge-nf-call-iptables
+    value: 1
+  - name: net.ipv4.ip_forward
+    value: 1

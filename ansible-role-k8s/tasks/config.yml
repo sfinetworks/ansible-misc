@@ -1,0 +1,67 @@
+---
+- name: Generar configuracion predeterminada de containerd
+  ansible.builtin.shell: containerd config default > {{ containerd_config }}
+  args:
+    creates: "{{ containerd_config }}"
+  become: true
+
+- name: Configurar Systemd como driver cgroup
+  ansible.builtin.replace:
+    path: "{{ containerd_config }}"
+    regexp: "(SystemdCgroup *=) *false"
+    replace: '\1 true'
+  become: true
+  notify:
+    - start-containerd
+
+- name: Descargar archivo Systemd de containerd
+  ansible.builtin.get_url:
+    url: "{{ containerd_systemd_file_url }}"
+    dest: "{{ containerd_systemd_file }}"
+    force: false
+  become: true
+
+- name: Ajustar configuracion Systemd para containerd
+  ansible.builtin.replace:
+    path: "{{ containerd_systemd_file }}"
+    regexp: "(^ExecStart=/usr/local/bin/containerd)$"
+    replace: '\1 --config /etc/containerd/config.toml'
+  become: true
+  notify:
+    - systemd-reload
+    - start-containerd
+
+- name: Deshabilitar la swap
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: "(^[^#].*swap.*)$"
+    replace: '#\1'
+  become: true
+  notify: turnoff-swap
+
+- name: Configurar modulos requeridos
+  ansible.builtin.template:
+    src: modules-k8s.conf
+    dest: /etc/modules-load.d/k8s.conf
+    mode: 0644
+  become: true
+
+- name: Cargar modulos
+  ansible.builtin.command: modprobe br_netfilter
+  become: true
+
+- name: Ajustar parametros de kernel
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/k8s.conf
+    reload: true
+  become: true
+  loop: "{{ sysctl_settings }}"
+
+- name: Configurar hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+    use: systemd
+  become: true

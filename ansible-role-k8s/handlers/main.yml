@@ -1,0 +1,19 @@
+---
+# handlers file for ansible-role-k8s
+- name: Apagar la swap
+  ansible.builtin.command: swapoff -a
+  become: true
+  listen: turnoff-swap
+
+- name: Recargar systemd
+  ansible.builtin.command: systemctl daemon-reload
+  become: true
+  listen: systemd-reload
+
+- name: Iniciar el servicio containerd
+  ansible.builtin.service:
+    name: containerd
+    state: restarted
+    enabled: true
+  become: true
+  listen: start-containerd

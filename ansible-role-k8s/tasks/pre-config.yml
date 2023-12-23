@@ -1,0 +1,40 @@
+---
+- name: Instalar dependencias base
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  become: true
+  loop: "{{ base_dependencies }}"
+
+- name: Borrar keyring de paquetes de Kubernetes
+  ansible.builtin.file:
+    path: "{{ kube_keyring }}"
+    state: absent
+  become: true
+
+- name: Obtener llave de firma de paquetes
+  ansible.builtin.get_url:
+    url: "{{ kube_key }}"
+    dest: /tmp/Release.key
+
+- name: Importar llave de firma de paquetes
+  ansible.builtin.command: gpg --dearmor -o {{ kube_keyring }} /tmp/Release.key
+  become: true
+
+- name: Configurar repositorio APT para Kubernetes
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ kube_keyring }}] https://pkgs.k8s.io/core:/stable:/v{{ kube_version }}/deb/ /"
+    filename: kubernetes
+    state: present
+  become: true
+
+- name: Crear directorio de instalacion y/o configuracion
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  become: true
+  loop:
+    - "{{ containerd_systemd_file | dirname }}"
+    - "{{ containerd_config | dirname }}"
+    - "{{ cni_plugins_dir }}"
