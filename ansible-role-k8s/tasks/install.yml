@@ -1,0 +1,50 @@
+---
+- name: Instalar paquetes de Kubernetes {{ kube_version }}
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  become: true
+  loop: "{{ kube_packages }}"
+
+- name: Marcar los paquetes de Kubernetes como no actualizables
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  become: true
+  loop: "{{ kube_packages }}"
+
+- name: Descargar containerd {{ containerd_version }}
+  ansible.builtin.get_url:
+    url: "{{ containerd_url }}"
+    dest: /tmp/{{ containerd_tarball }}
+
+- name: Instalar containerd
+  ansible.builtin.unarchive:
+    creates: /usr/local/bin/containerd
+    dest: /usr/local
+    remote_src: true
+    src: /tmp/{{ containerd_tarball }}
+  become: true
+  when: not ansible_check_mode
+
+- name: Descargar e instalar runc {{ runc_version }}
+  ansible.builtin.get_url:
+    url: "{{ runc_url }}"
+    dest: "{{ runc_file }}"
+    mode: 0755
+  become: true
+
+- name: Descargar plugins CNI {{ cni_plugins_version }}
+  ansible.builtin.get_url:
+    url: "{{ cni_plugins_url }}"
+    dest: /tmp/{{ cni_plugins_file }}
+
+- name: Instalar plugins CNI
+  ansible.builtin.unarchive:
+    creates: "{{ cni_plugins_file }}/portmap"
+    dest: "{{ cni_plugins_dir }}"
+    remote_src: true
+    src: /tmp/{{ cni_plugins_file }}
+  become: true
+  when: not ansible_check_mode
