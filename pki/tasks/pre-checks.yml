@@ -1,0 +1,54 @@
+---
+- name: Tareas de validacion para role_action=create_ca
+  when: role_action == "create_ca"
+  block:
+    - name: Verificar definicion de variables requeridas
+      ansible.builtin.assert:
+        that:
+          - ca_key_file is defined
+          - ca_cert_file is defined
+          - ca_common_name is defined
+        fail_msg: Una o mas variables requeridas no estan definidas
+        quiet: true
+
+    - name: Verificar existencia de archivos
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      become: true
+      register: stat_ca_files
+      loop:
+        - "{{ ca_key_file }}"
+        - "{{ ca_cert_file }}"
+
+    - name: Advertir de archivos ya existentes
+      ansible.builtin.debug:
+        msg: La llave privada ({{ ca_key_file }}) o certificado de CA ({{ ca_cert_file }}) ya existen
+      when: stat_ca_files.results[0].stat.exists or stat_ca_files.results[1].stat.exists
+
+- name: Tareas de validacion para role_action=create_server_cert
+  when: role_action == "create_server_cert"
+  block:
+    - name: Verificar definicion de variables requeridas
+      ansible.builtin.assert:
+        that:
+          - ca_key_file is defined
+          - ca_cert_file is defined
+          - server_key_file is defined
+          - server_cert_file is defined
+          - server_common_name is defined
+        fail_msg: Una o mas variables requeridas no estan definidas
+        quiet: true
+
+    - name: Verificar existencia de archivos
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      become: true
+      register: stat_server_files
+      loop:
+        - "{{ server_key_file }}"
+        - "{{ server_cert_file }}"
+
+    - name: Advertir de archivos ya existentes
+      ansible.builtin.debug:
+        msg: La llave privada ({{ server_key_file }}) o certificado de CA ({{ server_cert_file }}) ya existen
+      when: stat_server_files.results[0].stat.exists or stat_server_files.results[1].stat.exists

@@ -1,0 +1,12 @@
+---
+# tasks file for pki
+- name: Invocar tareas de verificaciones previas
+  ansible.builtin.include_tasks: pre-checks.yml
+
+- name: Invocar tareas de creacion de CA
+  ansible.builtin.include_tasks: create-ca.yml
+  when: role_action == "create_ca"
+
+- name: Invocar tareas de creacion de certificado de servidor
+  ansible.builtin.include_tasks: create-server-cert.yml
+  when: role_action == "create_server_cert"

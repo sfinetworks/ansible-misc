@@ -1,7 +1,10 @@
-[linux]
+[k8s]
 192.168.3.39 hostname=k8s-master-01
 192.168.3.40 hostname=k8s-master-02
 192.168.3.41 hostname=k8s-master-03
+
+[vault]
+192.168.3.42
 # 10.0.0.2
 # 10.0.0.10
 # 10.0.0.11
