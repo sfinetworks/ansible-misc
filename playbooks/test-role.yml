@@ -3,15 +3,25 @@
   hosts: all
   gather_facts: false
   vars:
-    server_cert_file=~/vault.sfi-networks.com.crt
-    server_key_file=~/vault.sfi-networks.com.key
-    ca_key_file=~/ca.key
-    
-  #   storage_backend: raft
-  #   nodes:
-  #     - 192.168.3.42 vault1.sfi-networks.com
-  #     - 192.168.3.51 vault2.sfi-networks.com
-  #     - 192.168.3.52 vault3.sfi-networks.com
+    server_cert_file: ~/vault.sfi-networks.com.crt
+    server_key_file: ~/vault.sfi-networks.com.key
+    server_common_name: vault.sfi-networks.com
+    ca_key_file: ~/ca.key
+    ca_cert_file: ~/ca.crt
+    server_sans:
+      - "DNS:vault.sfi-networks.com"
+      - "DNS:vault1.sfi-networks.com"
+      - "DNS:vault2.sfi-networks.com"
+      - "DNS:vault3.sfi-networks.com"
+      - "IP:192.168.3.42"
+      - "IP:192.168.3.51"
+      - "IP:192.168.3.52"
+      - "IP:127.0.0.1"
+    storage_backend: raft
+    nodes:
+      - 192.168.3.42 vault1.sfi-networks.com
+      - 192.168.3.51 vault2.sfi-networks.com
+      - 192.168.3.52 vault3.sfi-networks.com
   roles:
-    - pki
-    # - vault-server
+    # - pki
+    - vault-server

@@ -1,0 +1,14 @@
+---
+# vars file for pki
+# Variables a usar cuando role_action=create_ca
+ca_key_size: 2048
+ca_key_type: RSA
+# ca_key_passphrase: "supersecret"
+role_action: create_server_cert
+# ca_common_name: 
+
+# Variables a usar cuando role_action=create_server_cert
+server_key_size: 2048
+server_key_type: RSA
+# server_key_passphrase: "supersecret"
+# server_common_name: 

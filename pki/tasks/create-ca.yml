@@ -1,0 +1,36 @@
+---
+- name: Crear llave privada
+  community.crypto.openssl_privatekey:
+    path: "{{ ca_key_file }}"
+    size: "{{ ca_key_size }}"
+    type: "{{ ca_key_type }}"
+    cipher: "{{ 'auto' if ca_key_passphrase is defined else omit }}"
+    passphrase: "{{ ca_key_passphrase | default(omit) }}"
+
+- name: Verificar existencia de certificado CA
+  ansible.builtin.stat:
+    path: "{{ ca_cert_file }}"
+  register: stat_cert
+
+- name: Crear CSR para CA
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ ca_key_file }}"
+    common_name: "{{ ca_common_name }}"
+    use_common_name_for_san: false
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+    key_usage_critical: true
+  register: ca_csr
+  when: not stat_cert.stat.exists
+
+- name: Crear certificado de CA autofirmado desde CSR
+  community.crypto.x509_certificate:
+    path: "{{ ca_cert_file  }}"
+    csr_content: "{{ ca_csr.csr }}"
+    privatekey_path: "{{ ca_key_file }}"
+    passphrase: "{{ ca_key_passphrase | default(omit) }}"
+    provider: selfsigned
+  when: ca_csr.changed
