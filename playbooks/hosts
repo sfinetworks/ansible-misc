@@ -1,20 +1,13 @@
 [k8s]
-192.168.3.39 hostname=k8s-master-01
-192.168.3.40 hostname=k8s-master-02
-192.168.3.41 hostname=k8s-master-03
-
-[vault]
-192.168.3.42
-# 10.0.0.2
-# 10.0.0.10
-# 10.0.0.11
+# 192.168.3.39 hostname=k8s-master-01
+# 192.168.3.40 hostname=k8s-master-02
+# 192.168.3.41 hostname=k8s-master-03
 
 [windows]
 # 10.0.0.20
-# 10.0.0.30
-# 10.0.0.40
-# 10.0.0.50
-# 10.0.0.60
+
+[vault]
+192.168.3.54
 
 [windows:vars]
 ansible_user=arengifo

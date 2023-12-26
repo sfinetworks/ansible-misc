@@ -1,0 +1,20 @@
+---
+# vars file for ansible-role-vault-raft
+# package: vault
+# package: vault-enterprise
+# version: "latest"
+# nodes:
+#   - 192.168.3.42 vault1.empresa.pe
+address: 0.0.0.0:8200
+cluster_address: 0.0.0.0:8201
+config_file: /etc/vault.d/vault.hcl
+role_action: install
+# storage_backend: file
+storage_path: /opt/vault/data
+tls_disable: "false"
+tls_disable_client_certs: "true"
+# tls_cert_file: /opt/vault/tls/tls.crt
+# tls_key_file: /opt/vault/tls/tls.key
+# license_file: /opt/vault/license.hclic
+tls_min_version: tls12
+tls_max_version: tls13

@@ -1,0 +1,9 @@
+---
+# defaults file for ansible-role-vault-raft
+hashi_key: https://apt.releases.hashicorp.com/gpg
+hashi_keyring: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+hashi_key_file: "{{ hashi_keyring | basename }}"
+api_port: "{{ address.split(':')[1] }}"
+cluster_port: "{{ cluster_address.split(':')[1] }}"
+private_ip: "{{ ansible_env.SSH_CONNECTION.split(' ')[2] }}"
+api_scheme: "{{ 'https' if tls_disable == 'false' else 'http' }}"

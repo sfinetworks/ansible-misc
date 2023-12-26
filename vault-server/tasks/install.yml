@@ -1,0 +1,8 @@
+---
+- name: Instalar {{ package }} {{ version }}
+  ansible.builtin.apt:
+    name: "{{ package }}={{ version }}"
+    state: present
+    update_cache: true
+  become: true
+  when: not ansible_check_mode

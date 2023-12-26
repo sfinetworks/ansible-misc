@@ -1,0 +1,54 @@
+---
+- name: Agregar entrada en /etc/hosts
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    prepend_newline: true
+    append_newline: true
+    marker: "# {mark} - Configurado por Ansible para Vault"
+    block: |
+      {% for node in nodes %}
+      {{ node }}
+      {% endfor %}
+  become: true
+
+- name: Copiar archivos TLS para Vault
+  ansible.builtin.copy:
+    src: "{{ src_item }}"
+    dest: "{{ item }}"
+    mode: 0640
+    owner: vault
+    group: vault
+  become: true
+  vars:
+    src_item: "{{ copy_files_from }}/{{ item | basename }}"
+  loop:
+    - "{{ tls_cert_file }}"
+    - "{{ tls_key_file }}"
+
+- name: Copiar licencia de Vault
+  ansible.builtin.copy:
+    src: "{{ copy_files_from }}/{{ license_file | basename }}"
+    dest: "{{ license_file }}"
+    mode: 0640
+    owner: vault
+    group: vault
+  become: true
+  when: license_file is defined
+
+- name: Agregar certificado de Vault a cadena de confianza
+  ansible.builtin.copy:
+    src: "{{ tls_cert_file }}"
+    remote_src: true
+    dest: /usr/local/share/ca-certificates
+  become: true
+  notify: update-ca-certificates
+
+- name: Configurar Vault
+  ansible.builtin.template:
+    src: vault.hcl.j2
+    dest: "{{ config_file }}"
+    owner: vault
+    group: vault
+    mode: 0640
+  become: true
+  notify: restart-vault

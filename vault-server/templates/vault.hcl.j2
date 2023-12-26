@@ -1,0 +1,54 @@
+ui = true
+
+{% if storage_backend == "raft" %}
+api_addr     = "{{ api_scheme }}://{{ private_ip }}:{{ api_port }}"
+cluster_addr = "https://{{ private_ip }}:{{ cluster_port }}"
+{% endif %}
+
+{% if license_file is defined %}
+license_path = "{{ license_file }}"
+{% endif %}
+
+listener "tcp" {
+  address                  = "{{ address }}"
+{% if storage_backend == "raft" %}
+  cluster_address          = "{{ cluster_address }}"
+{% endif %}
+  tls_disable              = "{{ tls_disable }}"
+{% if tls_disable == 'false' %}
+  tls_disable_client_certs = "{{ tls_disable_client_certs }}"
+  tls_max_version          = "{{ tls_max_version }}"
+  tls_min_version          = "{{ tls_min_version }}"
+  tls_cert_file            = "{{ tls_cert_file }}"
+  tls_key_file             = "{{ tls_key_file }}"
+{% endif %}
+}
+
+{% if storage_backend == "file" %}
+storage "file" {
+  path = "{{ storage_path }}"
+}
+{% endif %}
+
+{% if storage_backend == "raft" %}
+storage "raft" {
+  path = "{{ storage_path }}"
+{% if nodes | length > 2 %}
+{% for node in nodes %}
+
+  retry_join {
+    leader_api_addr = "{{ api_scheme }}://{{ node.split(' ')[0] }}:{{ api_port }}"
+  }
+{% endfor %}
+{% endif %}
+}
+{% endif %}
+
+{% if seal == "awskms" %}
+seal "awskms" {
+  region     = "{{ aws_region }}"
+  access_key = "{{ aws_access_key_id }}"
+  secret_key = "{{ aws_secret_access_key }}"
+  kms_key_id = "{{ aws_kms_key_id }}"
+}
+{% endif %}
