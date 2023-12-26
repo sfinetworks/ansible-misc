@@ -1,7 +1,7 @@
 ---
-- name: Instalar paquetes de Vault {{ vault_version }}
+- name: Instalar {{ package }} {{ version }}
   ansible.builtin.apt:
-    name: "{{ vault_package }}"
+    name: "{{ package }}={{ version }}"
     state: present
     update_cache: true
   become: true

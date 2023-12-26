@@ -1,0 +1,27 @@
+---
+- name: Detener servicio Vault
+  ansible.builtin.service:
+    name: vault
+    enabled: false
+    state: stopped
+  become: true
+  register: service_result
+  failed_when:
+    - service_result.msg is defined
+    - not service_result.msg | regex_search("Could not find the requested service")
+
+- name: Desinstalar Vault
+  ansible.builtin.apt:
+    name: "{{ package }}"
+    state: absent
+    purge: true
+  become: true
+
+- name: Eliminar directorios de Vault
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  become: true
+  loop:
+    - /opt/vault
+    - /etc/vault.d

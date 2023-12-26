@@ -1,36 +1,54 @@
 ui = true
 
-api_addr     = "https://vault1.empresa.com:8200"
-cluster_addr = "https://vault1.empresa.com:8201"
+{% if storage_backend == "raft" %}
+api_addr     = "{{ api_scheme }}://{{ private_ip }}:{{ api_port }}"
+cluster_addr = "https://{{ private_ip }}:{{ cluster_port }}"
+{% endif %}
+
+{% if license_file is defined %}
+license_path = "{{ license_file }}"
+{% endif %}
 
 listener "tcp" {
-  address         = "0.0.0.0:8200"
-
-  # Agregar la siguiente linea
-  cluster_address = "0.0.0.0:8201"
-
-  # Agregar estas 3 lineas
-  tls_disable_client_certs = true
-  tls_max_version          = "tls13"
-  tls_min_version          = "tls12"
-
-  tls_cert_file = "/opt/vault/tls/vault.empresa.com.crt"
-  tls_key_file  = "/opt/vault/tls/vault.empresa.com.key"
+  address                  = "{{ address }}"
+{% if storage_backend == "raft" %}
+  cluster_address          = "{{ cluster_address }}"
+{% endif %}
+  tls_disable              = "{{ tls_disable }}"
+{% if tls_disable == 'false' %}
+  tls_disable_client_certs = "{{ tls_disable_client_certs }}"
+  tls_max_version          = "{{ tls_max_version }}"
+  tls_min_version          = "{{ tls_min_version }}"
+  tls_cert_file            = "{{ tls_cert_file }}"
+  tls_key_file             = "{{ tls_key_file }}"
+{% endif %}
 }
 
-# Agregar este bloque de storage "raft"
+{% if storage_backend == "file" %}
+storage "file" {
+  path = "{{ storage_path }}"
+}
+{% endif %}
+
+{% if storage_backend == "raft" %}
 storage "raft" {
-  path = "/opt/vault/data"
+  path = "{{ storage_path }}"
+{% if nodes | length > 2 %}
+{% for node in nodes %}
 
   retry_join {
-    leader_api_addr = "https://vault1.empresa.com:8200"
+    leader_api_addr = "{{ api_scheme }}://{{ node.split(' ')[0] }}:{{ api_port }}"
   }
-
-  retry_join {
-    leader_api_addr = "https://vault2.empresa.com:8200"
-  }
-
-  retry_join {
-    leader_api_addr = "https://vault3.empresa.com:8200"
-  }
+{% endfor %}
+{% endif %}
 }
+{% endif %}
+
+{% if seal == "awskms" %}
+seal "awskms" {
+  region     = "{{ aws_region }}"
+  access_key = "{{ aws_access_key_id }}"
+  secret_key = "{{ aws_secret_access_key }}"
+  kms_key_id = "{{ aws_kms_key_id }}"
+}
+{% endif %}

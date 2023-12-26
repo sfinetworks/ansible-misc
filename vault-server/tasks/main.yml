@@ -1,10 +1,20 @@
 ---
 # tasks file for ansible-role-vault-raft
-- name: Incluir tareas de configuraciones previas
-  ansible.builtin.include_tasks: pre-config.yml
+- name: Invocar tareas de instalacion
+  when: role_action == "install"
+  block:
+    - name: Incluir tareas de validaciones previas
+      ansible.builtin.include_tasks: pre-checks.yml
 
-- name: Incluir tareas de instalacion de paquetes
-  ansible.builtin.include_tasks: install.yml
+    - name: Incluir tareas de configuraciones previas
+      ansible.builtin.include_tasks: pre-config.yml
 
-- name: Incluir tareas de configuracion
-  ansible.builtin.include_tasks: config.yml
+    - name: Incluir tareas de instalacion de paquetes
+      ansible.builtin.include_tasks: install.yml
+
+    - name: Incluir tareas de configuracion
+      ansible.builtin.include_tasks: config.yml
+
+- name: Incluir tareas de deinstalacion de paquetes
+  ansible.builtin.include_tasks: uninstall.yml
+  when: role_action == "uninstall"

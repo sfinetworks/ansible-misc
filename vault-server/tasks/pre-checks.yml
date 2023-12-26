@@ -1,0 +1,26 @@
+---
+- name: Verificar presencia de variables necesarias
+  ansible.builtin.assert:
+    that:
+      - address is defined
+      - nodes is defined
+      - config_file is defined
+      - role_action is defined
+      - storage_backend is defined
+      - storage_path is defined
+      - tls_disable is defined
+      - tls_disable_client_certs is defined
+      - tls_cert_file is defined
+      - tls_key_file is defined
+      - tls_min_version is defined
+      - tls_max_version is defined
+    fail_msg: Una o mas variables requeridas no estas definidas
+    success_msg: Todas las variables requeridas si estan definidas
+
+- name: Verificar presencia de variables necesarias para storage raft
+  ansible.builtin.assert:
+    that:
+      - cluster_address is defined
+    fail_msg: Una o mas variables requeridas no estas definidas
+    success_msg: Todas las variables requeridas si estan definidas
+  when: storage_backend == "raft"
