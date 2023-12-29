@@ -1,0 +1,27 @@
+---
+- name: Test role
+  hosts: all
+  gather_facts: false
+  vars:
+    server_cert_file: ~/vault.sfi-networks.com.crt
+    server_key_file: ~/vault.sfi-networks.com.key
+    server_common_name: vault.sfi-networks.com
+    ca_key_file: ~/ca.key
+    ca_cert_file: ~/ca.crt
+    server_sans:
+      - "DNS:vault.sfi-networks.com"
+      - "DNS:vault1.sfi-networks.com"
+      - "DNS:vault2.sfi-networks.com"
+      - "DNS:vault3.sfi-networks.com"
+      - "DNS:vault4.sfi-networks.com"
+      - "DNS:vault5.sfi-networks.com"
+      - "DNS:vault6.sfi-networks.com"
+      - "IP:192.168.3.57"
+      - "IP:192.168.3.58"
+      - "IP:192.168.3.59"
+      - "IP:192.168.3.60"
+      - "IP:192.168.3.61"
+      - "IP:192.168.3.62"
+      - "IP:127.0.0.1"
+  roles:
+    - pki

@@ -22,6 +22,7 @@
   vars:
     src_item: "{{ copy_files_from }}/{{ item | basename }}"
   loop:
+    - "{{ tls_ca_file }}"
     - "{{ tls_cert_file }}"
     - "{{ tls_key_file }}"
 
@@ -29,7 +30,7 @@
   ansible.builtin.copy:
     src: "{{ copy_files_from }}/{{ license_file | basename }}"
     dest: "{{ license_file }}"
-    mode: 0640
+    mode: "0640"
     owner: vault
     group: vault
   become: true
@@ -37,9 +38,9 @@
 
 - name: Agregar certificado de Vault a cadena de confianza
   ansible.builtin.copy:
-    src: "{{ tls_cert_file }}"
+    src: "{{ tls_ca_file }}"
     remote_src: true
-    dest: /usr/local/share/ca-certificates
+    dest: /usr/local/share/ca-certificates/vault-ca.crt
   become: true
   notify: update-ca-certificates
 

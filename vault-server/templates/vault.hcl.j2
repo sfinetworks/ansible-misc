@@ -37,7 +37,8 @@ storage "raft" {
 {% for node in nodes %}
 
   retry_join {
-    leader_api_addr = "{{ api_scheme }}://{{ node.split(' ')[0] }}:{{ api_port }}"
+    leader_api_addr     = "{{ api_scheme }}://{{ node.split(' ')[0] }}:{{ api_port }}"
+    leader_ca_cert_file = "{{ tls_ca_file }}"
   }
 {% endfor %}
 {% endif %}
