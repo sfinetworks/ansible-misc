@@ -1,6 +1,6 @@
 ---
 # vars file for ansible-role-k8s
-kube_version: 1.27
+# kube_version: 1.27
 kube_key: https://pkgs.k8s.io/core:/stable:/v{{ kube_version }}/deb/Release.key
 kube_keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 containerd_version: 1.7.11

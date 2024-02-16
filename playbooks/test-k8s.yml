@@ -1,0 +1,8 @@
+---
+- name: Test role
+  hosts: all
+  gather_facts: false
+  vars:
+    kube_version: 1.29
+  roles:
+    - k8s-install

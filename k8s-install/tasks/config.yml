@@ -29,7 +29,13 @@
   become: true
   notify:
     - systemd-reload
-    - start-containerd
+
+- name: Iniciar el servicio containerd
+  ansible.builtin.service:
+    name: containerd
+    state: restarted
+    enabled: true
+  become: true
 
 - name: Deshabilitar la swap
   ansible.builtin.replace:
@@ -43,7 +49,7 @@
   ansible.builtin.template:
     src: modules-k8s.conf
     dest: /etc/modules-load.d/k8s.conf
-    mode: 0644
+    mode: "0644"
   become: true
 
 - name: Cargar modulos
@@ -65,3 +71,4 @@
     name: "{{ hostname }}"
     use: systemd
   become: true
+  when: hostname is defined
