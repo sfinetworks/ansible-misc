@@ -1,0 +1,6 @@
+---
+- name: Test role
+  hosts: all
+  gather_facts: false
+  roles:
+    - windows-updates
