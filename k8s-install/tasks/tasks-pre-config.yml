@@ -1,0 +1,77 @@
+---
+- name: Recopilar facts minimos
+  ansible.builtin.setup:
+    gather_subset:
+      - min
+  when: ansible_distribution is not defined
+
+- name: Tareas especificas de Debian
+  when: ansible_distribution == 'Debian'
+  block:
+    - name: Debian - Instalar dependencias base
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      become: true
+      loop: "{{ base_dependencies }}"
+
+    - name: Debian - Borrar keyring de paquetes de Kubernetes
+      ansible.builtin.file:
+        path: "{{ kube_keyring }}"
+        state: absent
+      become: true
+
+    - name: Debian - Obtener llave de firma de paquetes
+      ansible.builtin.get_url:
+        url: "{{ kube_key }}"
+        dest: /tmp/Release.key
+        mode: "0640"
+
+    - name: Debian - Importar llave de firma de paquetes
+      ansible.builtin.command: gpg --dearmor -o {{ kube_keyring }} /tmp/Release.key
+      become: true
+      changed_when: false
+
+    - name: Debian - Configurar repositorio APT para Kubernetes
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by={{ kube_keyring }}] https://pkgs.k8s.io/core:/stable:/v{{ kube_version }}/deb/ /"
+        filename: kubernetes
+        state: present
+      become: true
+
+- name: Tareas especificas de RedHat
+  when: ansible_distribution == 'RedHat'
+  block:
+    - name: RedHat - Deshabilitar SELinux
+      ansible.posix.selinux:
+        state: disabled
+      become: true
+
+    - name: RedHat - Agregar repositorio de Kubernetes
+      ansible.builtin.yum_repository:
+        name: kubernetes
+        file: kubernetes
+        description: Repositorio de Kubernetes
+        gpgcheck: true
+        gpgkey:
+          - https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/rpm/repodata/repomd.xml.key
+        baseurl: https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/rpm/
+        exclude:
+          - kubelet
+          - kubeadm
+          - kubectl
+          - cri-tools
+          - kubernetes-cni
+        enabled: true
+
+- name: Crear directorio de instalacion y/o configuracion
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  become: true
+  loop:
+    - "{{ containerd_systemd_file | dirname }}"
+    - "{{ containerd_config | dirname }}"
+    - "{{ cni_plugins_dir }}"

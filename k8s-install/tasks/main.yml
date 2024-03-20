@@ -1,10 +1,9 @@
 ---
-# tasks file for ansible-role-k8s
 - name: Incluir tareas de configuraciones previas
-  ansible.builtin.include_tasks: pre-config.yml
+  ansible.builtin.include_tasks: tasks-pre-config.yml
 
 - name: Incluir tareas de instalacion de paquetes
-  ansible.builtin.include_tasks: install.yml
+  ansible.builtin.include_tasks: tasks-install.yml
 
 - name: Incluir tareas de configuracion
-  ansible.builtin.include_tasks: config.yml
+  ansible.builtin.include_tasks: tasks-config.yml

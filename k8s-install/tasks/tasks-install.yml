@@ -1,23 +1,38 @@
 ---
-- name: Instalar paquetes de Kubernetes {{ kube_version }}
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: true
-  become: true
-  loop: "{{ kube_packages }}"
+- name: Tareas especificas de Debian
+  when: ansible_distribution == 'Debian'
+  block:
+    - name: Debian - Instalar paquetes de Kubernetes {{ kube_version }}
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      become: true
+      loop: "{{ kube_packages }}"
 
-- name: Marcar los paquetes de Kubernetes como no actualizables
-  ansible.builtin.dpkg_selections:
-    name: "{{ item }}"
-    selection: hold
-  become: true
-  loop: "{{ kube_packages }}"
+    - name: Debian - Marcar los paquetes de Kubernetes como no actualizables
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      become: true
+      loop: "{{ kube_packages }}"
+
+- name: Tareas especificas de RedHat
+  when: ansible_distribution == 'RedHat'
+  block:
+    - name: RedHat - Instalar paquetes de Kubernetes {{ kube_version }}
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+        disable_excludes: kubernetes
+      become: true
+      loop: "{{ kube_packages }}"
 
 - name: Descargar containerd {{ containerd_version }}
   ansible.builtin.get_url:
     url: "{{ containerd_url }}"
     dest: /tmp/{{ containerd_tarball }}
+    mode: "0640"
 
 - name: Instalar containerd
   ansible.builtin.unarchive:
@@ -32,13 +47,14 @@
   ansible.builtin.get_url:
     url: "{{ runc_url }}"
     dest: "{{ runc_file }}"
-    mode: 0755
+    mode: "0755"
   become: true
 
 - name: Descargar plugins CNI {{ cni_plugins_version }}
   ansible.builtin.get_url:
     url: "{{ cni_plugins_url }}"
     dest: /tmp/{{ cni_plugins_file }}
+    mode: "0640"
 
 - name: Instalar plugins CNI
   ansible.builtin.unarchive:

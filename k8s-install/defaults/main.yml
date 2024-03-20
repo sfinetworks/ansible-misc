@@ -18,7 +18,9 @@ containerd_systemd_file: /usr/local/lib/systemd/system/containerd.service
 containerd_config: /etc/containerd/config.toml
 runc_url: https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.amd64
 runc_file: /usr/local/sbin/runc
-cni_plugins_url: https://github.com/containernetworking/plugins/releases/download/v{{ cni_plugins_version }}/cni-plugins-linux-amd64-v{{ cni_plugins_version }}.tgz
+cni_plugins_url:
+  "https://github.com/containernetworking/plugins/releases/download/v\
+  {{ cni_plugins_version }}/cni-plugins-linux-amd64-v{{ cni_plugins_version }}.tgz"
 cni_plugins_file: "{{ (cni_plugins_url | split('/'))[-1] }}"
 cni_plugins_dir: /opt/cni/bin
 

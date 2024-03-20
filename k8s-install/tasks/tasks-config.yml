@@ -19,6 +19,7 @@
     url: "{{ containerd_systemd_file_url }}"
     dest: "{{ containerd_systemd_file }}"
     force: false
+    mode: "0640"
   become: true
 
 - name: Ajustar configuracion Systemd para containerd
@@ -55,6 +56,7 @@
 - name: Cargar modulos
   ansible.builtin.command: modprobe br_netfilter
   become: true
+  changed_when: false
 
 - name: Ajustar parametros de kernel
   ansible.posix.sysctl:
